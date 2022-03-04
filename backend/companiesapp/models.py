@@ -12,7 +12,9 @@ class Company(models.Model):
 
 class Employee(models.Model):
     name = models.CharField(max_length=200, null=False, blank=False, unique=True)
-    company = models.ForeignKey(Company, on_delete=models.CASCADE, null=True)
+    company = models.ForeignKey(
+        Company, on_delete=models.CASCADE, null=False, blank=False
+    )
     department = models.CharField(max_length=200, null=True, blank=True)
     date_added = models.DateTimeField(auto_now_add=True, editable=False)
 
