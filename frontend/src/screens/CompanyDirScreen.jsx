@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import UniContainer from '../components/UniContainer'
 import Loader from '../components/Loader';
 import Message from '../components/Message';
@@ -8,6 +8,8 @@ import { LinkContainer } from 'react-router-bootstrap'
 
 
 const CompanyDirScreen = () => {
+  const [companies2, setCompanies] = useState({})
+  const [lod, setLod] = useState(true)
   const {
     isLoading,
     companies,
@@ -24,6 +26,10 @@ const CompanyDirScreen = () => {
       await deleteCompany(id)
     }
     getCompanies()
+  }
+
+  const gc = async () => {
+    // todo 
   }
 
   return (
