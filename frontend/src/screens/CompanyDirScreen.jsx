@@ -1,87 +1,88 @@
-import React, { useContext, useEffect, useState } from 'react'
-import UniContainer from '../components/UniContainer'
-import Loader from '../components/Loader';
-import Message from '../components/Message';
-import BusinessContext from '../context/BusinessContext'
-import { Row, Col, Button, Table } from 'react-bootstrap';
+import React, { useEffect, useState } from 'react'
 import { LinkContainer } from 'react-router-bootstrap'
+import { Row, Col, Button } from 'react-bootstrap'
+import UniContainer from '../components/UniContainer'
+import Loader from '../components/Loader'
+import Message from '../components/Message'
+import CompanyList from '../components/CompanyList'
+import Paginate from '../components/Paginate'
 
+import axios from 'axios'
+const API_URL = 'http://localhost:8000/api'
 
 const CompanyDirScreen = () => {
-  const [companies2, setCompanies] = useState({})
-  const [lod, setLod] = useState(true)
-  const {
-    isLoading,
-    companies,
-    getCompanies,
-    deleteCompany,
-  } = useContext(BusinessContext)
+  const [companies, setCompanies] = useState({})
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [page, setPage] = useState(0)
+  const [pages, setPages] = useState(0)
 
   useEffect(() => {
     getCompanies()
   }, [])
 
-  const handleDelete = async (id) => {
-    if (window.confirm('Esta seguro que desea eliminar esta empresa? Tenga en cuenta que tambien se perderan todos sus empleados.')) {
-      await deleteCompany(id)
+  // Get companies
+  const getCompanies = async (keywords = '') => {
+    setLoading(true)
+    try {
+      const { data } = await axios.get(`${API_URL}/companies/${keywords}`)
+      setCompanies(data.companies)
+      setPage(data.page)
+      setPages(data.pages)
+    } catch (error) {
+      const e =
+        error.response && error.response.data.detail
+          ? error.response.data.detail
+          : error.message
+      setError(e)
     }
-    getCompanies()
+    setLoading(false)
   }
 
-  const gc = async () => {
-    // todo 
+  // Delete single company
+  const deleteCompany = async (id) => {
+    try {
+      if (
+        window.confirm(
+          'Esta seguro que desea eliminar esta empresa? Tenga en cuenta que tambien se perderan los datos de todos sus empleados.'
+        )
+      ) {
+        await axios.delete(`${API_URL}/companies/delete/${id}`)
+        getCompanies()
+      }
+    } catch (error) {
+      alert('There was an error trying to delete the company, try again later.')
+    }
   }
 
   return (
     <UniContainer>
-      <Row className='mb-3'>
+      <Row className="mb-3">
         <Col>
           <h3>Directorio de empresas</h3>
         </Col>
         <Col xs={3}>
-          <LinkContainer to='/new_company'>
+          <LinkContainer to="/new_company">
             <Button>Nueva empresa</Button>
           </LinkContainer>
         </Col>
       </Row>
 
-      {
-        isLoading ? <Loader />
-          : (companies.companies.length === 0)
-            ? <Message variant='secondary'>
-              Aun no hay empresas registradas, se el primero haciendo click en <b>"Añadir empresa"</b>
-            </Message>
-            : (
-              <Table striped hover responsive >
-                <thead>
-                  <th >Nombre</th>
-                  <th className="text-center" ># Empleados</th>
-                  <th></th>
-
-                </thead>
-                <tbody>
-                  {companies.companies.map((c) =>
-                  (<tr key={c.id}>
-                    <td className="align-middle">{c.name}</td>
-                    <td className="align-middle text-center">{c.num_employees}</td>
-                    <td className="text-center">
-                      <LinkContainer to={`/emp/${c.id}/edit`}>
-                        <Button className='me-2'><i className="fas fa-edit"></i></Button>
-                      </LinkContainer>
-                      <LinkContainer to={`/emp/${c.id}`}>
-                        <Button variant='success' className='me-2'><i className="fas fa-search"></i></Button>
-                      </LinkContainer>
-                      <Button variant='danger' onClick={() => handleDelete(c.id)} ><i className="fas fa-trash"></i></Button>
-                    </td>
-
-                  </tr>
-                  )
-                  )}
-                </tbody>
-              </Table>
-            )
-      }
-
+      {loading ? (
+        <Loader />
+      ) : error ? (
+        <Message variant="danger">{error}</Message>
+      ) : companies.length === 0 ? (
+        <Message variant="secondary">
+          Aun no hay empresas registradas, se el primero haciendo click en{' '}
+          <b>"Añadir empresa"</b>
+        </Message>
+      ) : (
+        <>
+          <CompanyList companies={companies} handleDelete={deleteCompany} />
+          <Paginate page={page} pages={pages} />
+        </>
+      )}
     </UniContainer>
   )
 }

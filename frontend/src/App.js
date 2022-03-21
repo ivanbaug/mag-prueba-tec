@@ -19,7 +19,6 @@ function App() {
           <Container className='cont-width'>
             <Routes>
               <Route path='/' exact element={<CompanyDirScreen />} />
-              <Route path='/notfound' element={<NotFoundScreen />} />
               <Route path='/new_company' element={<NewCompanyScreen />} />
               <Route path='/emp/:id' element={<CompanyDetailsScreen />} />
               <Route path='/emp/:id/edit' element={<EditCompanyScreen />} />
