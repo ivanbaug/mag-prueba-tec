@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import { LinkContainer } from 'react-router-bootstrap'
 import { Row, Col, Button } from 'react-bootstrap'
 import UniContainer from '../components/UniContainer'
@@ -8,6 +9,7 @@ import CompanyList from '../components/CompanyList'
 import Paginate from '../components/Paginate'
 
 import axios from 'axios'
+
 const API_URL = 'http://localhost:8000/api'
 
 const CompanyDirScreen = () => {
@@ -17,9 +19,11 @@ const CompanyDirScreen = () => {
   const [page, setPage] = useState(0)
   const [pages, setPages] = useState(0)
 
+  const { search: keywords } = useLocation()
+
   useEffect(() => {
-    getCompanies()
-  }, [])
+    getCompanies(keywords)
+  }, [keywords])
 
   // Get companies
   const getCompanies = async (keywords = '') => {

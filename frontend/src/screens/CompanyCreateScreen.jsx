@@ -1,14 +1,14 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useState } from 'react'
+import { Row, Col, Button, Form } from 'react-bootstrap'
+import { Link } from 'react-router-dom'
 import UniContainer from '../components/UniContainer'
 import Loader from '../components/Loader'
 import Message from '../components/Message'
-import { Row, Col, Button, Form } from 'react-bootstrap'
-import { useNavigate, Link } from 'react-router-dom'
 
 import axios from 'axios'
 const API_URL = 'http://localhost:8000/api'
 
-const CompanyDirScreen = () => {
+const CompanyCreateScreen = () => {
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [loading, setLoading] = useState(false)
@@ -99,4 +99,4 @@ const CompanyDirScreen = () => {
   )
 }
 
-export default CompanyDirScreen
+export default CompanyCreateScreen
