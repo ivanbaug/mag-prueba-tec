@@ -16,6 +16,11 @@ class CompanySerializer(serializers.ModelSerializer):
 
 
 class EmployeeSerializer(serializers.ModelSerializer):
+    company_str = serializers.SerializerMethodField(read_only=True)
+
     class Meta:
         model = Employee
         fields = "__all__"
+
+    def get_company_str(self, obj):
+        return obj.company.name

@@ -79,7 +79,16 @@ def create_company(request):
 def update_company(request, pk):
     data = request.data
     # TODO: Validate if company exists
+
+    c_exists = Company.objects.filter(name=data["name"])
     company = Company.objects.get(id=int(pk))
+
+    # Thow error if company exists
+    if len(c_exists) > 0 and (company.name != data["name"]):
+        return Response(
+            {"detail": "Error: Company already exists"},
+            status=status.HTTP_409_CONFLICT,
+        )
 
     # Change company data
     company.name = data["name"]

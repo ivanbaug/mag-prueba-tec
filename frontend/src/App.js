@@ -9,6 +9,9 @@ import CompanyDetailsScreen from './screens/CompanyDetailsScreen'
 import CompanyCreateScreen from './screens/CompanyCreateScreen'
 import CompanyEditScreen from './screens/CompanyEditScreen'
 import NotFoundScreen from './screens/NotFoundScreen'
+import EmployeeCreateScreen from './screens/EmployeeCreateScreen'
+import EmployeeDetailsScreen from './screens/EmployeeDetailsScreen'
+import EmployeeEditScreen from './screens/EmployeeEditScreen'
 
 function App() {
   return (
@@ -20,12 +23,18 @@ function App() {
             <Routes>
               <Route path="/" exact element={<CompanyDirScreen />} />
               <Route path="/new_company" element={<CompanyCreateScreen />} />
-              <Route path="/emp/:id" element={<CompanyDetailsScreen />} />
-              <Route path="/emp/:id/edit" element={<CompanyEditScreen />} />
+              <Route path="/company/:id" element={<CompanyDetailsScreen />} />
+              <Route path="/company/:id/edit" element={<CompanyEditScreen />} />
+              <Route
+                path="/company/:id/new_employee"
+                element={<EmployeeCreateScreen />}
+              />
+              <Route path="/employee/:id" element={<EmployeeDetailsScreen />} />
+              <Route
+                path="/employee/:id/edit"
+                element={<EmployeeEditScreen />}
+              />
               <Route path="/*" element={<NotFoundScreen />} />
-              {/*         <Route path='/login' element={<LoginScreen />} />
-            <Route path='/register' element={<RegisterScreen />} />
-            <Route path='/profile' element={<ProfileScreen />} /> */}
             </Routes>
           </Container>
         </main>

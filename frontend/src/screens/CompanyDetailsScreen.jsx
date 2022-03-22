@@ -1,37 +1,82 @@
-import React, { useContext, useEffect, useState } from 'react'
-import UniContainer from '../components/UniContainer'
-import Message from '../components/Message'
-import BusinessContext from '../context/BusinessContext'
-import { Row, Col, Button, Form, Card, ListGroup, Table } from 'react-bootstrap'
-import { useParams, useNavigate } from 'react-router-dom'
-import Loader from '../components/Loader'
+import React, { useEffect, useState } from 'react'
+import { useParams, useLocation } from 'react-router-dom'
 import { LinkContainer } from 'react-router-bootstrap'
+import { Row, Col, Button } from 'react-bootstrap'
 
-const CompanyDetails = () => {
-  // const [name, setName] = useState('')
-  // const [description, setDescription] = useState('')
+import Loader from '../components/Loader'
+import Message from '../components/Message'
+import UniContainer from '../components/UniContainer'
 
-  const navigate = useNavigate()
+import CompanyDetails from '../components/CompanyDetails'
+import EmployeeList from '../components/EmployeeList'
+import Paginate from '../components/Paginate'
+
+import axios from 'axios'
+const API_URL = 'http://localhost:8000/api'
+
+const CompanyDetailsScreen = () => {
+  const [company, setCompany] = useState({})
+  const [employees, setEmployees] = useState({})
+  const [loadingC, setLoadingC] = useState(false)
+  const [loadingE, setLoadingE] = useState(false)
+  const [error, setError] = useState(null)
+  const [page, setPage] = useState(0)
+  const [pages, setPages] = useState(0)
+
   const params = useParams()
+  const { search } = useLocation()
+  const pageStr = search.includes('page') ? search.replace('?', '&') : ''
 
-  const { curCompany, getOneCompany, isLoading, getEmployees, employees } =
-    useContext(BusinessContext)
+  // Get company
+  const getCompanyInfo = async (id) => {
+    setLoadingC(true)
+    try {
+      const { data } = await axios.get(`${API_URL}/companies/${id}`)
+      setCompany(data)
+    } catch (error) {
+      const e =
+        error.response && error.response.data.detail
+          ? error.response.data.detail
+          : error.message
+      setError(e)
+    }
+    setLoadingC(false)
+  }
+
+  // Get employees
+  const getEmployees = async (keywords = '') => {
+    setLoadingE(true)
+    try {
+      const { data } = await axios.get(`${API_URL}/employees/${keywords}`)
+      setEmployees(data.employees)
+      setPage(data.page)
+      setPages(data.pages)
+    } catch (error) {
+      const e =
+        error.response && error.response.data.detail
+          ? error.response.data.detail
+          : error.message
+      setError(e)
+    }
+    setLoadingE(false)
+  }
 
   useEffect(() => {
-    if (Object.keys(curCompany).length === 0) {
-      getOneCompany(params.id)
-      getEmployees(`?company=${params.id}`)
-    } else if (Number(curCompany.id) !== Number(params.id)) {
-      getOneCompany(params.id)
-      getEmployees(`?company=${params.id}`)
-    }
-  }, [curCompany, getOneCompany, params])
+    getCompanyInfo(params.id)
+    getEmployees(`?company=${params.id}${pageStr}`)
+  }, [pageStr, params])
 
   const handleDelete = async (id) => {
-    // if (window.confirm('Esta seguro que desea eliminar esta empresa? Tenga en cuenta que tambien se perderan todos sus empleados.')) {
-    //   await deleteCompany(id)
-    // }
-    // getCompanies()
+    try {
+      if (window.confirm('Esta seguro que desea retirar este empleado?')) {
+        await axios.delete(`${API_URL}/employees/delete/${id}`)
+        getEmployees(`?company=${params.id}`)
+      }
+    } catch (error) {
+      alert(
+        'There was an error trying to delete the employee, try again later.'
+      )
+    }
   }
 
   return (
@@ -41,82 +86,46 @@ const CompanyDetails = () => {
           <h3>Detalles empresa</h3>
         </Col>
       </Row>
-
       <Row className="mb-3">
-        {isLoading ? (
+        {loadingC ? (
           <Loader />
-        ) : Object.keys(curCompany).length === 0 ? (
+        ) : Object.keys(company).length === 0 ? (
           <Message variant="secondary">Unavailable</Message>
         ) : (
-          <Card>
-            <Card.Header as="h3">{curCompany.name}</Card.Header>
-            <ListGroup variant="flush">
-              <ListGroup.Item>
-                <strong>Descripcion:</strong>&nbsp;
-                {curCompany.description}
-              </ListGroup.Item>
-              <ListGroup.Item>
-                <strong>Empleados:</strong>&nbsp;
-                {curCompany.num_employees}
-              </ListGroup.Item>
-            </ListGroup>
-          </Card>
+          <CompanyDetails company={company} />
         )}
       </Row>
-
       <Row className="mb-3 mt-5">
         <Col>
-          <h3>Empleados de la empresa</h3>
+          <h3>Lista de personal</h3>
         </Col>
         <Col xs={4}>
-          <LinkContainer to="/new_company">
+          <LinkContainer to={`/company/${params.id}/new_employee`}>
             <Button>Nuevo empleado</Button>
           </LinkContainer>
         </Col>
       </Row>
-      {isLoading ? (
+      {loadingE || loadingC ? (
         <Loader />
-      ) : employees.employees.length === 0 ? (
-        <Message variant="secondary">
-          Aun no hay empresas registradas, se el primero haciendo click en{' '}
-          <b>"Añadir empresa"</b>
-        </Message>
+      ) : error ? (
+        <Message variant="danger">{error}</Message>
+      ) : employees.length > 0 ? (
+        <>
+          <EmployeeList employees={employees} onDelete={handleDelete} />
+          <Paginate
+            page={page}
+            pages={pages}
+            prefix={`/company/${params.id}`}
+          />
+        </>
       ) : (
-        <Table striped hover responsive>
-          <thead>
-            <tr>
-              <th>Nombre</th>
-              <th className="text-center">Depto</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {employees.employees.map((c) => (
-              <tr key={c.id}>
-                <td className="align-middle">{c.name}</td>
-                <td className="align-middle text-center">{c.department}</td>
-                <td className="text-center">
-                  <LinkContainer to={`/emp/${c.id}/edit`}>
-                    <Button className="me-2">
-                      <i className="fas fa-edit"></i>
-                    </Button>
-                  </LinkContainer>
-                  <LinkContainer to={`/emp/${c.id}`}>
-                    <Button variant="success" className="me-2">
-                      <i className="fas fa-search"></i>
-                    </Button>
-                  </LinkContainer>
-                  <Button variant="danger" onClick={() => handleDelete(c.id)}>
-                    <i className="fas fa-trash"></i>
-                  </Button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
+        <Message variant="secondary">
+          Aun no hay personas registradas, se el primero haciendo click en{' '}
+          <b>"Nuevo empleado."</b>
+        </Message>
       )}
     </UniContainer>
   )
 }
 
-export default CompanyDetails
+export default CompanyDetailsScreen

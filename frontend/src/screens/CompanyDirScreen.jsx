@@ -84,7 +84,7 @@ const CompanyDirScreen = () => {
       ) : (
         <>
           <CompanyList companies={companies} handleDelete={deleteCompany} />
-          <Paginate page={page} pages={pages} />
+          <Paginate page={page} pages={pages} prefix="/" />
         </>
       )}
     </UniContainer>
