@@ -5,8 +5,7 @@ import UniContainer from '../components/UniContainer'
 import Message from '../components/Message'
 import Loader from '../components/Loader'
 
-import axios from 'axios'
-const API_URL = 'http://localhost:8000/api'
+import { getCompany, updateCompany } from '../api/ApiCalls'
 
 const CompanyEditScreen = () => {
   const [name, setName] = useState('')
@@ -20,50 +19,31 @@ const CompanyEditScreen = () => {
   // Get company
   const getCompanyInfo = async (id) => {
     setLoading(true)
-    try {
-      const { data } = await axios.get(`${API_URL}/companies/${id}`)
+    const [error, data] = await getCompany(id)
+    if (error) {
+      setError(error)
+    } else {
       setName(data.name)
       setDescription(data.description)
-    } catch (error) {
-      const e =
-        error.response && error.response.data.detail
-          ? error.response.data.detail
-          : error.message
-      setError(e)
     }
     setLoading(false)
   }
 
-  // Update Company
-  const updateCompany = async (company_info, id) => {
-    setLoading(true)
-    setSuccess(false)
-    try {
-      await axios.put(`${API_URL}/companies/update/${id}/`, company_info)
-      setSuccess(true)
-    } catch (error) {
-      const e =
-        error.response && error.response.data.detail
-          ? error.response.data.detail
-          : error.message
-      setError(
-        e +
-          '. Ya existe otra compañia con ese nombre, intenta con uno diferente. O puedes'
-      )
-    }
-    setLoading(false)
-  }
-
-  const submitHandler = async (e) => {
+  async function submitHandler(e) {
     e.preventDefault()
     if (name !== '') {
-      await updateCompany(
-        {
-          name,
-          description,
-        },
-        params.id
-      )
+      setLoading(true)
+      setSuccess(false)
+      const [error, successUpdate] = await updateCompany(params.id, {
+        name,
+        description,
+      })
+      if (error) {
+        setError(error)
+      } else {
+        setSuccess(successUpdate)
+      }
+      setLoading(false)
     } else {
       setError('Por favor ingrese un nombre valido.')
     }

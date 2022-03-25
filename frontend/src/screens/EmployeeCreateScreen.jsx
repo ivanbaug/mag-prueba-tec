@@ -6,8 +6,7 @@ import Loader from '../components/Loader'
 import Message from '../components/Message'
 import UniContainer from '../components/UniContainer'
 
-import axios from 'axios'
-const API_URL = 'http://localhost:8000/api'
+import { newEmployee } from '../api/ApiCalls'
 
 const EmployeeCreateScreen = () => {
   const [name, setName] = useState('')
@@ -18,38 +17,29 @@ const EmployeeCreateScreen = () => {
 
   const params = useParams()
 
-  // Add Company
-  const newEmployee = async (company_info) => {
-    setLoading(true)
-    setSuccess(false)
-    try {
-      await axios.post(`${API_URL}/employees/create/`, company_info)
-      setSuccess(true)
-    } catch (error) {
-      const err =
-        error.response && error.response.data.detail
-          ? error.response.data.detail
-          : error.message
-      setError(err)
-    }
-    setLoading(false)
-  }
-
   const submitHandler = async (e) => {
     e.preventDefault()
     setError(null)
+    setLoading(true)
     if (name !== '') {
-      newEmployee({
+      setSuccess(false)
+      const [error, success] = await newEmployee({
         name,
         department,
         company: params.id,
       })
+      if (error) {
+        setError(error)
+      } else {
+        setSuccess(success)
+      }
       // Clear fields
       setName('')
       setDepartment('')
     } else {
       setError('Por favor ingrese un nombre valido.')
     }
+    setLoading(false)
   }
 
   return (

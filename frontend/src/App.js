@@ -3,7 +3,6 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import './App.css'
 import Footer from './components/Footer'
 import Header from './components/Header'
-import { BusinessProvider } from './context/BusinessContext'
 import CompanyDirScreen from './screens/CompanyDirScreen'
 import CompanyDetailsScreen from './screens/CompanyDetailsScreen'
 import CompanyCreateScreen from './screens/CompanyCreateScreen'
@@ -15,32 +14,27 @@ import EmployeeEditScreen from './screens/EmployeeEditScreen'
 
 function App() {
   return (
-    <BusinessProvider>
-      <Router>
-        <Header />
-        <main className="py-3">
-          <Container className="cont-width">
-            <Routes>
-              <Route path="/" exact element={<CompanyDirScreen />} />
-              <Route path="/new_company" element={<CompanyCreateScreen />} />
-              <Route path="/company/:id" element={<CompanyDetailsScreen />} />
-              <Route path="/company/:id/edit" element={<CompanyEditScreen />} />
-              <Route
-                path="/company/:id/new_employee"
-                element={<EmployeeCreateScreen />}
-              />
-              <Route path="/employee/:id" element={<EmployeeDetailsScreen />} />
-              <Route
-                path="/employee/:id/edit"
-                element={<EmployeeEditScreen />}
-              />
-              <Route path="/*" element={<NotFoundScreen />} />
-            </Routes>
-          </Container>
-        </main>
-        <Footer />
-      </Router>
-    </BusinessProvider>
+    <Router>
+      <Header />
+      <main className="py-3">
+        <Container className="cont-width">
+          <Routes>
+            <Route path="/" exact element={<CompanyDirScreen />} />
+            <Route path="/new_company" element={<CompanyCreateScreen />} />
+            <Route path="/company/:id" element={<CompanyDetailsScreen />} />
+            <Route path="/company/:id/edit" element={<CompanyEditScreen />} />
+            <Route
+              path="/company/:id/new_employee"
+              element={<EmployeeCreateScreen />}
+            />
+            <Route path="/employee/:id" element={<EmployeeDetailsScreen />} />
+            <Route path="/employee/:id/edit" element={<EmployeeEditScreen />} />
+            <Route path="/*" element={<NotFoundScreen />} />
+          </Routes>
+        </Container>
+      </main>
+      <Footer />
+    </Router>
   )
 }
 

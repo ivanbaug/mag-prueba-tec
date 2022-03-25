@@ -11,73 +11,69 @@ import CompanyDetails from '../components/CompanyDetails'
 import EmployeeList from '../components/EmployeeList'
 import Paginate from '../components/Paginate'
 
-import axios from 'axios'
-const API_URL = 'http://localhost:8000/api'
+import { deleteEmployee, getCompany, getEmployees } from '../api/ApiCalls'
 
 const CompanyDetailsScreen = () => {
+  const [employeesSt, setEmployeesSt] = useState({
+    employees: [],
+    pages: 0,
+    page: 0,
+  })
   const [company, setCompany] = useState({})
-  const [employees, setEmployees] = useState({})
   const [loadingC, setLoadingC] = useState(false)
   const [loadingE, setLoadingE] = useState(false)
   const [error, setError] = useState(null)
-  const [page, setPage] = useState(0)
-  const [pages, setPages] = useState(0)
 
   const params = useParams()
+  const { employees, pages, page } = employeesSt
+
   const { search } = useLocation()
   const pageStr = search.includes('page') ? search.replace('?', '&') : ''
 
-  // Get company
-  const getCompanyInfo = async (id) => {
+  // Get company info
+  const getCompanyInfo = async ({ id, keywords }) => {
+    // Company displays first
     setLoadingC(true)
-    try {
-      const { data } = await axios.get(`${API_URL}/companies/${id}`)
+    const [errorCompany, data] = await getCompany(id)
+    if (errorCompany) {
+      setError(errorCompany)
+    } else {
       setCompany(data)
-    } catch (error) {
-      const e =
-        error.response && error.response.data.detail
-          ? error.response.data.detail
-          : error.message
-      setError(e)
     }
     setLoadingC(false)
-  }
-
-  // Get employees
-  const getEmployees = async (keywords = '') => {
+    // Display employees
     setLoadingE(true)
-    try {
-      const { data } = await axios.get(`${API_URL}/employees/${keywords}`)
-      setEmployees(data.employees)
-      setPage(data.page)
-      setPages(data.pages)
-    } catch (error) {
-      const e =
-        error.response && error.response.data.detail
-          ? error.response.data.detail
-          : error.message
-      setError(e)
+    const [errorEmployees, dataEmp] = await getEmployees(keywords)
+    if (errorEmployees) {
+      setError(errorEmployees)
+    } else {
+      setEmployeesSt(dataEmp)
     }
     setLoadingE(false)
   }
 
-  useEffect(() => {
-    getCompanyInfo(params.id)
-    getEmployees(`?company=${params.id}${pageStr}`)
-  }, [pageStr, params])
-
-  const handleDelete = async (id) => {
-    try {
-      if (window.confirm('Esta seguro que desea retirar este empleado?')) {
-        await axios.delete(`${API_URL}/employees/delete/${id}`)
-        getEmployees(`?company=${params.id}`)
+  const deleteHandler = async (id) => {
+    if (window.confirm('Esta seguro que desea retirar este empleado?')) {
+      const [errorDelete, success] = await deleteEmployee(id)
+      if (errorDelete) {
+        alert(errorDelete)
       }
-    } catch (error) {
-      alert(
-        'There was an error trying to delete the employee, try again later.'
-      )
+      if (success) {
+        // If successfull refresh data
+        await getCompanyInfo({
+          id: params.id,
+          keywords: `?company=${params.id}${pageStr}`,
+        })
+      }
     }
   }
+
+  useEffect(() => {
+    getCompanyInfo({
+      id: params.id,
+      keywords: `?company=${params.id}${pageStr}`,
+    })
+  }, [pageStr, params])
 
   return (
     <UniContainer>
@@ -111,7 +107,7 @@ const CompanyDetailsScreen = () => {
         <Message variant="danger">{error}</Message>
       ) : employees.length > 0 ? (
         <>
-          <EmployeeList employees={employees} onDelete={handleDelete} />
+          <EmployeeList employees={employees} onDelete={deleteHandler} />
           <Paginate
             page={page}
             pages={pages}

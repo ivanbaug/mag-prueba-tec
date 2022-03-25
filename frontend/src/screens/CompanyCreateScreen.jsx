@@ -4,9 +4,7 @@ import { Link } from 'react-router-dom'
 import UniContainer from '../components/UniContainer'
 import Loader from '../components/Loader'
 import Message from '../components/Message'
-
-import axios from 'axios'
-const API_URL = 'http://localhost:8000/api'
+import { newCompany } from '../api/ApiCalls'
 
 const CompanyCreateScreen = () => {
   const [name, setName] = useState('')
@@ -15,37 +13,28 @@ const CompanyCreateScreen = () => {
   const [error, setError] = useState(null)
   const [success, setSuccess] = useState(false)
 
-  // Add Company
-  const newCompany = async (company_info) => {
-    setLoading(true)
-    setSuccess(false)
-    try {
-      await axios.post(`${API_URL}/companies/create/`, company_info)
-      setSuccess(true)
-    } catch (error) {
-      const err =
-        error.response && error.response.data.detail
-          ? error.response.data.detail
-          : error.message
-      setError(err)
-    }
-    setLoading(false)
-  }
-
   const submitHandler = async (e) => {
     e.preventDefault()
-    setError(null)
+    setLoading(true)
+    setSuccess(false)
+    setError(null) //Got to clear error before adding a new one
     if (name !== '') {
-      newCompany({
+      const [error, created] = await newCompany({
         name,
         description,
       })
+      if (error) {
+        setError(error)
+      } else {
+        setSuccess(created)
+      }
       // Clear fields
       setName('')
       setDescription('')
     } else {
       setError('Por favor ingrese un nombre valido.')
     }
+    setLoading(false)
   }
 
   return (
@@ -63,8 +52,8 @@ const CompanyCreateScreen = () => {
       ) : (
         success && (
           <Message variant="success">
-            Se agregó la empresa correctamente.&nbsp;Puede agregar otra empresa
-            o puede <Link to={'/'}>regresar al directorio de empresas.</Link>
+            Se agregó la empresa correctamente.&nbsp;Puedes agregar otra empresa
+            o puedes <Link to={'/'}>regresar al directorio de empresas.</Link>
           </Message>
         )
       )}
