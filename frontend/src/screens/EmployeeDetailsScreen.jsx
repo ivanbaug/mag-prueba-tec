@@ -8,14 +8,11 @@ import Message from '../components/Message'
 import UniContainer from '../components/UniContainer'
 import EmployeeDetails from '../components/EmployeeDetails'
 
-import axios from 'axios'
-
-const API_URL = 'http://localhost:8000/api'
+import { getEmployee } from '../api/ApiCalls'
 
 const EmployeeDetailsScreen = () => {
   const [employee, setEmployee] = useState({})
   const [loading, setLoading] = useState(false)
-
   const [error, setError] = useState(null)
 
   const params = useParams()
@@ -23,15 +20,11 @@ const EmployeeDetailsScreen = () => {
   // Get employee
   const getEmployeeInfo = async (id) => {
     setLoading(true)
-    try {
-      const { data } = await axios.get(`${API_URL}/employees/${id}/`)
+    const [error, data] = await getEmployee(id)
+    if (error) {
+      setError(error)
+    } else {
       setEmployee(data)
-    } catch (error) {
-      const e =
-        error.response && error.response.data.detail
-          ? error.response.data.detail
-          : error.message
-      setError(e)
     }
     setLoading(false)
   }

@@ -5,8 +5,7 @@ import UniContainer from '../components/UniContainer'
 import Message from '../components/Message'
 import Loader from '../components/Loader'
 
-import axios from 'axios'
-const API_URL = 'http://localhost:8000/api'
+import { getEmployee, updateEmployee } from '../api/ApiCalls'
 
 const EmployeeEditScreen = () => {
   const [name, setName] = useState('')
@@ -20,33 +19,12 @@ const EmployeeEditScreen = () => {
   // Get employee
   const getEmployeeInfo = async (id) => {
     setLoading(true)
-    try {
-      const { data } = await axios.get(`${API_URL}/employees/${id}/`)
+    const [error, data] = await getEmployee(id)
+    if (error) {
+      setError(error)
+    } else {
       setName(data.name)
       setDepartment(data.department)
-    } catch (error) {
-      const e =
-        error.response && error.response.data.detail
-          ? error.response.data.detail
-          : error.message
-      setError(e)
-    }
-    setLoading(false)
-  }
-
-  // Update employee
-  const updateEmployee = async (emp_info) => {
-    setLoading(true)
-    setSuccess(false)
-    try {
-      await axios.put(`${API_URL}/employees/update/${params.id}/`, emp_info)
-      setSuccess(true)
-    } catch (error) {
-      const err =
-        error.response && error.response.data.detail
-          ? error.response.data.detail
-          : error.message
-      setError(err)
     }
     setLoading(false)
   }
@@ -55,13 +33,20 @@ const EmployeeEditScreen = () => {
     e.preventDefault()
     setError(null)
     if (name !== '') {
-      updateEmployee({
+      setLoading(true)
+      const [error, success] = await updateEmployee(params.id, {
         name,
         department,
       })
+      if (error) {
+        setError(error)
+      } else {
+        setSuccess(success)
+      }
     } else {
       setError('Por favor ingrese un nombre valido.')
     }
+    setLoading(false)
   }
 
   useEffect(() => {

@@ -8,54 +8,50 @@ import Message from '../components/Message'
 import CompanyList from '../components/CompanyList'
 import Paginate from '../components/Paginate'
 
-import axios from 'axios'
-
-const API_URL = 'http://localhost:8000/api'
+import { getCompanies, deleteCompany } from '../api/ApiCalls'
 
 const CompanyDirScreen = () => {
-  const [companies, setCompanies] = useState({})
+  const [companiesSt, setCompaniesSt] = useState({
+    companies: [],
+    pages: 0,
+    page: 0,
+  })
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const [page, setPage] = useState(0)
-  const [pages, setPages] = useState(0)
 
+  const { companies, pages, page } = companiesSt
   const { search: keywords } = useLocation()
 
   useEffect(() => {
-    getCompanies(keywords)
+    callGetCompanies(keywords)
   }, [keywords])
 
   // Get companies
-  const getCompanies = async (keywords = '') => {
+  const callGetCompanies = async (keywords) => {
     setLoading(true)
-    try {
-      const { data } = await axios.get(`${API_URL}/companies/${keywords}`)
-      setCompanies(data.companies)
-      setPage(data.page)
-      setPages(data.pages)
-    } catch (error) {
-      const e =
-        error.response && error.response.data.detail
-          ? error.response.data.detail
-          : error.message
-      setError(e)
+    const [error, data] = await getCompanies(keywords)
+    if (error) {
+      setError(error)
+    } else {
+      setCompaniesSt(data)
     }
     setLoading(false)
   }
 
   // Delete single company
-  const deleteCompany = async (id) => {
-    try {
-      if (
-        window.confirm(
-          'Esta seguro que desea eliminar esta empresa? Tenga en cuenta que tambien se perderan los datos de todos sus empleados.'
-        )
-      ) {
-        await axios.delete(`${API_URL}/companies/delete/${id}`)
-        getCompanies()
+  const deleteHandler = async (id) => {
+    if (
+      window.confirm(`Esta seguro que desea eliminar esta empresa?
+Tenga en cuenta que tambien se perderan los datos de todos sus empleados.`)
+    ) {
+      setLoading(true)
+      const [error, data] = await deleteCompany(id, keywords)
+      if (error) {
+        alert(error)
+      } else {
+        setCompaniesSt(data)
       }
-    } catch (error) {
-      alert('There was an error trying to delete the company, try again later.')
+      setLoading(false)
     }
   }
 
@@ -79,11 +75,11 @@ const CompanyDirScreen = () => {
       ) : companies.length === 0 ? (
         <Message variant="secondary">
           Aun no hay empresas registradas, se el primero haciendo click en{' '}
-          <b>"Añadir empresa"</b>
+          <b>"Nueva empresa"</b>
         </Message>
       ) : (
         <>
-          <CompanyList companies={companies} handleDelete={deleteCompany} />
+          <CompanyList companies={companies} handleDelete={deleteHandler} />
           <Paginate page={page} pages={pages} prefix="/" />
         </>
       )}
