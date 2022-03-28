@@ -72,6 +72,27 @@ Una vez hecha esta configuracion se usa el comando `python manage.py makemigrati
 
 En adelante Django conectará directamente a la base de datos y podra realizar los cambios que los permisos de usuario del administrador de la base de datos lo permitan.
 
+### OPCION POSTGRES
+
+Dado que tengo un postgres Server en linea, para implementar una base de datos PostgreSQL en lugar de SQL Server solo basta con agregar la libreria `psycopg2` al entorno de python (Ver Dockerfile) y usar la siguiente configuracion en el archivo `backend\backend\settings.py`:
+
+```python
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.environ.get("PG_DB_NAME"),
+        "USER": os.environ.get("PG_DB_USER"),
+        "PASSWORD": os.environ.get("PG_DB_PASS"),
+        "HOST": os.environ.get("PG_DB_HOST"),
+        "PORT": os.environ.get("PG_DB_PORT"),
+    }
+}
+```
+
+### Primer despliegue
+
+Durante el primer despliegue se debe ejecutar el comando `python manage.py migrate` desde el directorio `backend/` para crear las tablas en la base de datos por primera vez.
+
 ## Backend
 
 Como se menciono anteriormente el backend se realizó con Django y REST Framework

@@ -84,22 +84,27 @@ WSGI_APPLICATION = "backend.wsgi.application"
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
 DATABASES = {
+    # OPTION 1: Microsoft SQL Server
     # "default": {
-    #     "ENGINE": "django.db.backends.sqlite3",
-    #     "NAME": BASE_DIR / "db.sqlite3",
-    # }
+    #     "ENGINE": "mssql",
+    #     "NAME": os.getenv("MS_DB_NAME"),
+    #     "USER": os.getenv("MS_DB_USER"),
+    #     "PASSWORD": os.getenv("MS_DB_PASSWORD"),
+    #     "HOST": os.getenv("MS_DB_HOST"),
+    #     "OPTIONS": {
+    #         "driver": "ODBC Driver 17 for SQL Server",
+    #         "isolation_level": "READ UNCOMMITTED",  # Prevent deadlocks
+    #     },
+    # },
+    # OPTION 2: Postgresql
     "default": {
-        "ENGINE": "mssql",
-        "NAME": os.getenv("DB_NAME"),
-        "USER": os.getenv("DB_USER"),
-        "PASSWORD": os.getenv("DB_PASSWORD"),
-        "HOST": os.getenv("DB_HOST"),
-        # "PORT": "1433",
-        "OPTIONS": {
-            "driver": "ODBC Driver 17 for SQL Server",
-            "isolation_level": "READ UNCOMMITTED",  # Prevent deadlocks
-        },
-    },
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.environ.get("PG_DB_NAME"),
+        "USER": os.environ.get("PG_DB_USER"),
+        "PASSWORD": os.environ.get("PG_DB_PASS"),
+        "HOST": os.environ.get("PG_DB_HOST"),
+        "PORT": os.environ.get("PG_DB_PORT"),
+    }
 }
 
 
