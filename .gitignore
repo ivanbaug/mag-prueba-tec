@@ -262,3 +262,6 @@ sketch
 .venv/*
 
 my_resources/*
+
+# Allow react build directory
+!backend/front/*
