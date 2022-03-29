@@ -91,7 +91,7 @@ DATABASES = {
 
 ### Primer despliegue
 
-Durante el primer despliegue se debe ejecutar el comando `python manage.py migrate` desde el directorio `backend/` para crear las tablas en la base de datos por primera vez.
+Durante el primer despliegue se debe ejecutar el comando `python manage.py migrate` desde el directorio `/backend` para crear las tablas en la base de datos por primera vez.
 
 ## Backend
 
@@ -103,6 +103,21 @@ En el siguiente vinculo se encuentra la documentacion generada durante las prueb
 https://documenter.getpostman.com/view/13923274/UVkvHXu5
 
 ## Frontend
+
+Para generar el build de produccion a partir nasta con ubicarse en el directorio `/frontend` y correr el comando `npm run build`.
+
+Se debe tener en cuenta que se tiene configurado el directorio `/backend/front/build` para recibir los archivos frontend de produccion que el backend django pueda leer.
+
+Esto se puede configurar en el archivo `package.json` en la linea "build":
+
+```json
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "set BUILD_PATH=../backend/front/build&& react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+```
 
 Pagina inicial
 ![principal](https://ivanotes.s3.amazonaws.com/mag/01.png)
