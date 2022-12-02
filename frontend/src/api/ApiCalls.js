@@ -1,5 +1,6 @@
 import axios from 'axios'
-const API_URL = 'http://localhost:8000/api'
+const API_URL = 'https://mag-prueba-tec-yctxl3no4a-ue.a.run.app'
+// const API_URL = 'http://localhost:8000/api'
 const apiRequest = axios.create({
   baseURL: API_URL,
 })
@@ -29,7 +30,7 @@ export const getCompany = async (id) => {
     return [null, data]
   } catch (error) {
     const sts = errorMsg(error)
-    const msg = `Error ${sts}: Ha ocurrido un error recibiendo los datos de la emrpesa, intentalo de nuevo mas tarde.`
+    const msg = `Error ${sts}: Ha ocurrido un error recibiendo los datos de la empresa, intentalo de nuevo mas tarde.`
     return [msg, null]
   }
 }

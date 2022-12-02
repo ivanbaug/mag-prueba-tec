@@ -106,6 +106,8 @@ https://documenter.getpostman.com/view/13923274/UVkvHXu5
 
 Para generar el build de produccion a partir nasta con ubicarse en el directorio `/frontend` y correr el comando `npm run build`.
 
+Nota: Despues de hacer el build con react, desde backend se debe correr `python manage.py collectstatic` para cargar los staticfiles al backend.
+
 Se debe tener en cuenta que se tiene configurado el directorio `/backend/front/build` para recibir los archivos frontend de produccion que el backend django pueda leer.
 
 Esto se puede configurar en el archivo `package.json` en la linea "build":
