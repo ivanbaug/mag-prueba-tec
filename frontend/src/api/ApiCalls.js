@@ -1,5 +1,5 @@
 import axios from 'axios'
-const API_URL = 'https://mag-prueba-tec-yctxl3no4a-ue.a.run.app'
+const API_URL = 'https://mag-prueba-tec-yctxl3no4a-ue.a.run.app/api'
 // const API_URL = 'http://localhost:8000/api'
 const apiRequest = axios.create({
   baseURL: API_URL,
